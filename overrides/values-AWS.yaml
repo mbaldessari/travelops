@@ -23,4 +23,4 @@ clusterGroup:
       namespace: letsencrypt
       # Using 'default' as that exists everywhere
       project: default
-      path: common/letsencrypt
+      path: common/letsencrypt2
