@@ -1,0 +1,48 @@
+{{- range $apps := .Values.apps }}
+{{ $version := $.Values.appVersion }}
+{{ $env := $.Values.appEnv }}
+{{- with $img := $.Values.image }}
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ $apps.name }}-{{ $version }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ $apps.name }}
+      version: {{ $version }}
+  replicas: {{ $.Values.replicaCount }}
+  template:
+    metadata:
+      annotations:
+      {{- include "services.istioProxyConfig" . | nindent 8 }}
+      labels:
+        app: {{ $apps.name }}
+        version: {{ $version }}
+    spec:
+      containers:
+        - name: {{ $apps.name }}
+          image: {{ $img.registry }}/{{ $img.repository }}/demo_travels_{{ $apps.name }}:{{ $img.tag }}
+          imagePullPolicy: {{ $img.pullPolicy }}
+{{- end }}
+          ports:
+            - containerPort: {{ $.Values.service.port }}
+          securityContext:
+            privileged: false
+          env:
+            - name: CURRENT_SERVICE
+              value: {{ $apps.name | quote }}
+            - name: CURRENT_VERSION
+              value: {{ $version | quote }}
+            - name: LISTEN_ADDRESS
+              value: ":8000"
+            - name: DISCOUNTS_SERVICE
+              value: "http://discounts.travel-agency:8000"
+          {{- if eq $apps.name "travels" }}
+          {{- include "services.travelsEnv" . | nindent 12 -}}
+          {{- else if ne $apps.name "discounts" }}
+          {{- include "services.mysqlEnv" . | nindent 12 -}}
+          {{- end }}
+
+{{- end }}

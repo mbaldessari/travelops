@@ -1,0 +1,74 @@
+{{- range $apps := .Values.apps }}
+{{ $version := $.Values.appVersion }}
+{{ $env := $.Values.appEnv }}
+{{- with $img := $.Values.image }}
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+{{- if eq $apps.name "control" }}
+  name: {{ $apps.name }}
+  namespace: {{ $env }}-travel-control
+{{- else }}
+  name: {{ $apps.name }}
+  namespace: {{ $env }}-travel-portal
+{{- end }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ $apps.name }}
+      version: {{ $version }}
+  replicas: {{ $.Values.replicaCount }}
+  template:
+    metadata:
+      annotations:
+      {{- if eq $apps.name "control" }}
+        readiness.status.sidecar.istio.io/applicationPorts: ""
+      {{- else }}
+      {{- include "portal.istioProxyConfig" . | nindent 8 }}
+      {{- end }}
+      labels:
+        app: {{ $apps.name }}
+        version: {{ $version }}
+    spec:
+      containers:
+        {{- if eq $apps.name "voyages" }}
+        - name: {{ $apps.name }}
+        {{- else }}
+        - name: control
+        {{- end }}
+        {{- if eq $apps.name "control" }}
+          image: {{ $img.registry }}/{{ $img.repository }}/demo_travels_control:{{ $img.tag }}
+        {{- else }}
+          image: {{ $img.registry }}/{{ $img.repository }}/demo_travels_portal:{{ $img.tag }}
+        {{- end }}
+          imagePullPolicy: {{ $img.pullPolicy }}
+{{- end }}
+          ports:
+          {{- if eq $apps.name "control" }}
+            - containerPort: 8080
+          {{- else }}
+            - containerPort: {{ $.Values.service.port }}
+          {{- end }}
+          securityContext:
+            privileged: false
+          env:
+          {{- if eq $apps.name "control" }}
+            - name: PORTAL_SERVICES
+              value: "voyages.fr;http://voyages.{{ $env }}-travel-portal:8000,viaggi.it;http://viaggi.{{ $env }}-travel-portal:8000,travels.uk;http://travels.{{ $env }}-travel-portal:8000"
+          {{- else }}
+          {{- with $apps.env }}
+            - name: LISTEN_ADDRESS
+              value: ":8000"
+            - name: PORTAL_COORDINATES
+              value: {{ .coordinates | quote }}
+            - name: PORTAL_COUNTRY
+              value: {{ .country | quote }}
+            - name: PORTAL_NAME
+              value: "{{ $apps.name }}.{{ .countryShort }}"
+            - name: TRAVELS_AGENCY_SERVICE
+              value: "http://travels.{{ $env }}-travel-agency:8000"
+          {{- end }}
+          {{- end }}
+{{- end }}
+

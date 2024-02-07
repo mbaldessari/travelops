@@ -1,0 +1,25 @@
+# Default values for servicemesh.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+#Jaeger tracing configuration
+tracing:
+  sampling: 10000
+
+#Service Mesh ControlPlane version
+version: v2.4
+
+#mutual TLS (mTLS)configuration
+security:
+  controlPlane:
+    mtls: true
+  dataPlane:
+    automtls: true
+    mtls: true
+
+# ServiceMesh Membership 
+# This generates a serviceMeshMembership in each component namespace
+members:
+  - agency 
+  - control
+  - portal
