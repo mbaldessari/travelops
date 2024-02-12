@@ -43,6 +43,7 @@ clusterGroup:
   projects:
     - hub
     - servicemesh
+    - travelops
     - travelops-dev
     - travelops-prod
 
