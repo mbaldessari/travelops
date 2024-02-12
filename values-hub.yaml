@@ -92,7 +92,7 @@ clusterGroup:
       path: common/golang-external-secrets
 
     mysql:
-      name: mysql
+      name: mysqldb
       namespace: travel-agency
       project: travelops
       path: charts/travelops/mysqldb
