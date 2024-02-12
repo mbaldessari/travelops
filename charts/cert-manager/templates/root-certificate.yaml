@@ -8,7 +8,7 @@ metadata:
     argocd.argoproj.io/sync-wave: "6"
 spec:
   isCA: true
-  duration: 21600h 
+  duration: "21600h0m0s"
   secretName: root-ca
   commonName: root-ca.my-company.net
   subject:
