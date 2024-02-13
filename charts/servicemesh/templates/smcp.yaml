@@ -18,13 +18,15 @@ spec:
   profiles:
     - {{ .Values.smcp.profiles }}
   proxy:
-    resources:
-      requests:
-        cpu: {{ .Values.proxy.requests.cpu }}
-        memory: {{ .Values.proxy.requests.memory }}
-      limits:
-        cpu: {{ .Values.proxy.limits.cpu }}
-        memory: {{ .Values.proxy.limits.memory }}
+    runtime:
+      container:
+        resources:
+          requests:
+            cpu: {{ .Values.proxy.requests.cpu }}
+            memory: {{ .Values.proxy.requests.memory }}
+          limits:
+            cpu: {{ .Values.proxy.limits.cpu }}
+            memory: {{ .Values.proxy.limits.memory }}
     accessLogging:
       file:
         name: /dev/stdout
