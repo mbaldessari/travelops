@@ -131,10 +131,7 @@ components:
       replicas: {{ .Values.pilot.deployment.replicas }}
     pod:
       affinity: {}
-    container:
-      resources:
-      limits: {}
-      requirements: {}
+    container: {}
   grafana:
     deployment: {}
     pod: {}
