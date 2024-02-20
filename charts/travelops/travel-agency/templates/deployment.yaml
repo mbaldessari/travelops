@@ -6,6 +6,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ $apps.name }}-{{ $version }}
+  labels:
+    app: ${ $apps.name }}
 spec:
   selector:
     matchLabels:

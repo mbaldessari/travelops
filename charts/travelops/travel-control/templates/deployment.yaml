@@ -4,6 +4,8 @@ kind: Deployment
 metadata:
   name: control
   namespace: travel-control
+  labels:
+    app: control
 spec:
   selector:
     matchLabels:

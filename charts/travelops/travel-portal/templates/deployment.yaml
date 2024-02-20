@@ -7,6 +7,8 @@ kind: Deployment
 metadata:
   name: {{ $apps.name }}-{{ $version }}
   namespace: travel-portal
+  labels:
+    app: ${{ apps.name }}
 spec:
   selector:
     matchLabels:
