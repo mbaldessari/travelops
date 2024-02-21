@@ -2,7 +2,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   annotations:
-    argocd.argoproj.io/sync-wave: 50
+    argocd.argoproj.io/sync-wave: '50'
   name: rollout-restart
   namespace: travel-portal
 spec:
