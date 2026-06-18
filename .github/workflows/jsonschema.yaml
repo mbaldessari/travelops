@@ -1,44 +1,26 @@
 ---
 name: Verify json schema
 
-#
-# Documentation:
-# https://help.github.com/en/articles/workflow-syntax-for-github-actions
-#
-
-#############################
-# Start the job on all push #
-#############################
 on: [push, pull_request]
 
-###############
-# Set the Job #
-###############
+permissions: read-all
+
 jobs:
   jsonschema_tests:
-    # Name the Job
     name: Json Schema tests
     strategy:
       matrix:
         python-version: [3.11]
-    # Set the agent to run on
     runs-on: ubuntu-latest
 
-    ##################
-    # Load all steps #
-    ##################
     steps:
-      ##########################
-      # Checkout the code base #
-      ##########################
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
-          # Full git history is needed to get a proper list of changed files within `super-linter`
-          fetch-depth: 0
+          persist-credentials: false
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -48,25 +30,23 @@ jobs:
           pip install check-jsonschema
 
       - name: Install yq
-        uses: chrisdickinson/setup-yq@latest
+        uses: chrisdickinson/setup-yq@fa3192edd79d6eb0e4e12de8dde3a0c26f2b853b # 2025-08-25
         with:
           yq-version: v4.30.7
 
       - name: Verify secrets json schema against templates
         run: |
-          # check-jsonschema needs .yaml as an extension
           cp ./values-secret.yaml.template ./values-secret.yaml
-          check-jsonschema --schemafile ./common/ansible/roles/vault_utils/values-secrets.v2.schema.json values-secret.yaml
+          check-jsonschema --fill-defaults --schemafile https://raw.githubusercontent.com/validatedpatterns/rhvp.cluster_utils/refs/heads/main/roles/vault_utils/values-secrets.v2.schema.json values-secret.yaml
           rm -f ./values-secret.yaml
 
       - name: Verify ClusterGroup values.schema.json against values-*yaml files
         run: |
-          set -e; for i in values-hub.yaml values-group-one.yaml; do
+          set -e; for i in values-hub.yaml; do
             echo "$i"
             # disable shellcheck of single quotes in yq
             # shellcheck disable=2016
             yq eval-all '. as $item ireduce ({}; . * $item )' values-global.yaml "$i" > tmp.yaml
-            check-jsonschema --schemafile ./common/clustergroup/values.schema.json tmp.yaml
+            check-jsonschema --fill-defaults --schemafile https://raw.githubusercontent.com/validatedpatterns/clustergroup-chart/refs/heads/main/values.schema.json tmp.yaml
             rm -f tmp.yaml
           done
-

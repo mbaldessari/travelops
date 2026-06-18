@@ -1,11 +1,12 @@
 ---
 global:
-  pattern: multicloud-gitops
+  pattern: travelops
 
   options:
     useCSV: false
     syncPolicy: Automatic
     installPlanApproval: Automatic
+    autoApproveManualInstallPlans: true
 
 main:
   clusterGroupName: hub
